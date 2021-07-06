@@ -32,16 +32,19 @@ namespace Platformer.Gameplay
                     {
                         Schedule<EnemyDeath>().enemy = enemy;
                         player.Bounce(2);
+                        enemy.Bounce(-2);
                     }
                     else
                     {
                         player.Bounce(7);
+                        enemy.Bounce(-7);
                     }
                 }
                 else
                 {
                     Schedule<EnemyDeath>().enemy = enemy;
                     player.Bounce(2);
+                    enemy.Bounce(-1);
                 }
             }
             else

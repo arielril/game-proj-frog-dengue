@@ -10,7 +10,7 @@ namespace Platformer.Mechanics
     /// A simple controller for enemies. Provides movement control over a patrol path.
     /// </summary>
     [RequireComponent(typeof(AnimationController), typeof(Collider2D))]
-    public class EnemyController : MonoBehaviour
+    public class EnemyController : KinematicObject
     {
         public PatrolPath path;
         public AudioClip ouch;
@@ -42,7 +42,7 @@ namespace Platformer.Mechanics
             }
         }
 
-        void Update()
+        protected override void Update()
         {
             if (path != null)
             {
