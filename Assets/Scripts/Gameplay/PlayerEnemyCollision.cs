@@ -25,6 +25,12 @@ namespace Platformer.Gameplay
             if (willHurtEnemy)
             {
                 var enemyHealth = enemy.GetComponent<Health>();
+                var flyingEnemyHealth = enemy.GetComponent<EnemyHealthManager>();
+
+                if (flyingEnemyHealth != null) {
+                    flyingEnemyHealth.giveDamage(1);
+                }
+
                 if (enemyHealth != null)
                 {
                     enemyHealth.Decrement();

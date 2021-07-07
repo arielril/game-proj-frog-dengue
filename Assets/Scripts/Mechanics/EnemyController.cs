@@ -14,17 +14,23 @@ namespace Platformer.Mechanics
     {
         public PatrolPath path;
         public AudioClip ouch;
+        public float playerRange;
+        public float moveSpeed;
+        public LayerMask playerLayer;
+        public bool playerInRange;
 
         internal PatrolPath.Mover mover;
         internal AnimationController control;
         internal Collider2D _collider;
         internal AudioSource _audio;
+        internal PlayerController thePlayer;
         SpriteRenderer spriteRenderer;
 
         public Bounds Bounds => _collider.bounds;
 
         void Awake()
         {
+            thePlayer = FindObjectOfType<PlayerController>();
             control = GetComponent<AnimationController>();
             _collider = GetComponent<Collider2D>();
             _audio = GetComponent<AudioSource>();
@@ -49,7 +55,17 @@ namespace Platformer.Mechanics
                 if (mover == null) mover = path.CreateMover(control.maxSpeed * 0.5f);
                 control.move.x = Mathf.Clamp(mover.Position.x - transform.position.x, -1, 1);
             }
+
+            playerInRange = Physics2D.OverlapCircle(transform.position, playerRange, playerLayer);
+
+            if (playerInRange) {
+                transform.position = Vector3.MoveTowards(transform.position, thePlayer.transform.position, moveSpeed * Time.deltaTime);
+            }
         }
 
+
+        void OnDrawGizmosSelected() {
+            Gizmos.DrawSphere(transform.position, playerRange);
+        }
     }
 }
