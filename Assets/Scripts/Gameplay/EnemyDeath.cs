@@ -10,13 +10,22 @@ namespace Platformer.Gameplay
     public class EnemyDeath : Simulation.Event<EnemyDeath>
     {
         public EnemyController enemy;
+        public FlyingEnemyController fEnemy;
 
         public override void Execute()
         {
-            enemy._collider.enabled = false;
-            enemy.control.enabled = false;
-            if (enemy._audio && enemy.ouch)
-                enemy._audio.PlayOneShot(enemy.ouch);
+            if (enemy !=null ) {
+                enemy._collider.enabled = false;
+                enemy.control.enabled = false;
+                if (enemy._audio && enemy.ouch)
+                    enemy._audio.PlayOneShot(enemy.ouch);
+            }
+
+            if (fEnemy != null) {
+                fEnemy._collider.enabled = false;
+                // fEnemy.control.enabled = false;
+            }
+            
         }
     }
 }

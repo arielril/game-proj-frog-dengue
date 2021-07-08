@@ -14,17 +14,18 @@ namespace Platformer.Gameplay
     public class PlayerEnemyCollision : Simulation.Event<PlayerEnemyCollision>
     {
         public EnemyController enemy;
+        public FlyingEnemyController fEnemy;
         public PlayerController player;
 
         PlatformerModel model = Simulation.GetModel<PlatformerModel>();
 
-        public override void Execute()
-        {
+        private void ExecuteEnemy() {
             var willHurtEnemy = player.Bounds.center.y >= enemy.Bounds.max.y;
 
             if (willHurtEnemy)
             {
                 var enemyHealth = enemy.GetComponent<Health>();
+
                 if (enemyHealth != null)
                 {
                     enemyHealth.Decrement();
@@ -32,25 +33,53 @@ namespace Platformer.Gameplay
                     {
                         Schedule<EnemyDeath>().enemy = enemy;
                         player.Bounce(2);
-                        enemy.Bounce(-2);
                     }
                     else
                     {
                         player.Bounce(7);
-                        enemy.Bounce(-7);
                     }
                 }
                 else
                 {
                     Schedule<EnemyDeath>().enemy = enemy;
                     player.Bounce(2);
-                    enemy.Bounce(-1);
                 }
             }
             else
             {
                 Schedule<PlayerDeath>();
             }
+        }
+
+        private void ExecuteFlyingEnemy() {
+            var willHurtFlyingEnemy = player.transform.position.y >= fEnemy.transform.position.y;
+            
+            if (willHurtFlyingEnemy) {
+                var enemyHealth = fEnemy.GetComponent<Health>();
+                
+                if (enemyHealth != null) {
+                    enemyHealth.Decrement();
+                    if (!enemyHealth.IsAlive) {
+                        Schedule<EnemyDeath>().fEnemy = fEnemy;
+                        player.Bounce(2);
+                    } else {
+                        player.Bounce(7);
+                    }
+                } else {
+                    Schedule<EnemyDeath>().fEnemy = fEnemy;
+                    player.Bounce(2);
+                }
+            } else {
+                Schedule<PlayerDeath>();
+            }
+        }
+
+        public override void Execute()
+        {
+            if (enemy != null)
+                this.ExecuteEnemy();
+            if (fEnemy != null)
+                this.ExecuteFlyingEnemy();
         }
     }
 }

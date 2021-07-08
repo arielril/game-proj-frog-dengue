@@ -65,6 +65,7 @@ namespace Platformer.Mechanics
         /// <param name="position"></param>
         public void Teleport(Vector3 position)
         {
+            if (body == null) return;
             body.position = position;
             velocity *= 0;
             body.velocity *= 0;
@@ -73,11 +74,13 @@ namespace Platformer.Mechanics
         protected virtual void OnEnable()
         {
             body = GetComponent<Rigidbody2D>();
+            if (body == null) return;
             body.isKinematic = true;
         }
 
         protected virtual void OnDisable()
         {
+            if (body == null) return;
             body.isKinematic = false;
         }
 
@@ -106,7 +109,7 @@ namespace Platformer.Mechanics
                 velocity += gravityModifier * Physics2D.gravity * Time.deltaTime;
             else
                 velocity += Physics2D.gravity * Time.deltaTime;
-
+            
             velocity.x = targetVelocity.x;
 
             IsGrounded = false;
@@ -122,7 +125,6 @@ namespace Platformer.Mechanics
             move = Vector2.up * deltaPosition.y;
 
             PerformMovement(move, true);
-
         }
 
         void PerformMovement(Vector2 move, bool yMovement)
@@ -132,7 +134,10 @@ namespace Platformer.Mechanics
             if (distance > minMoveDistance)
             {
                 //check if we hit anything in current direction of travel
-                var count = body.Cast(move, contactFilter, hitBuffer, distance + shellRadius);
+                var count = 0;
+                if (body != null)
+                    count = body.Cast(move, contactFilter, hitBuffer, distance + shellRadius);
+                    
                 for (var i = 0; i < count; i++)
                 {
                     var currentNormal = hitBuffer[i].normal;
@@ -169,7 +174,8 @@ namespace Platformer.Mechanics
                     distance = modifiedDistance < distance ? modifiedDistance : distance;
                 }
             }
-            body.position = body.position + move.normalized * distance;
+            if (body != null)
+                body.position = body.position + move.normalized * distance;
         }
 
     }
