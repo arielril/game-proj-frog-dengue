@@ -23,7 +23,6 @@ namespace Platformer.Mechanics
         /// The current velocity of the entity.
         /// </summary>
         public Vector2 velocity;
-        public bool shouldGravitate;
 
         /// <summary>
         /// Is the entity currently sitting on a surface?
@@ -47,7 +46,6 @@ namespace Platformer.Mechanics
         /// <param name="value"></param>
         public void Bounce(float value)
         {
-            if (shouldGravitate) return;
             velocity.y = value;
         }
 
@@ -57,7 +55,6 @@ namespace Platformer.Mechanics
         /// <param name="dir"></param>
         public void Bounce(Vector2 dir)
         {
-            if (shouldGravitate) return;
             velocity.y = dir.y;
             velocity.x = dir.x;
         }
@@ -68,7 +65,7 @@ namespace Platformer.Mechanics
         /// <param name="position"></param>
         public void Teleport(Vector3 position)
         {
-            if (shouldGravitate) return;
+            if (body == null) return;
             body.position = position;
             velocity *= 0;
             body.velocity *= 0;
@@ -76,14 +73,14 @@ namespace Platformer.Mechanics
 
         protected virtual void OnEnable()
         {
-            if (shouldGravitate) return;
             body = GetComponent<Rigidbody2D>();
+            if (body == null) return;
             body.isKinematic = true;
         }
 
         protected virtual void OnDisable()
         {
-            if (shouldGravitate) return;
+            if (body == null) return;
             body.isKinematic = false;
         }
 
@@ -96,7 +93,6 @@ namespace Platformer.Mechanics
 
         protected virtual void Update()
         {
-            if (shouldGravitate) return;
             targetVelocity = Vector2.zero;
             ComputeVelocity();
         }
@@ -108,9 +104,6 @@ namespace Platformer.Mechanics
 
         protected virtual void FixedUpdate()
         {
-            if (shouldGravitate) {
-                return ;
-            }
             //if already falling, fall faster than the jump speed, otherwise use normal gravity.
             if (velocity.y < 0)
                 velocity += gravityModifier * Physics2D.gravity * Time.deltaTime;
@@ -136,13 +129,15 @@ namespace Platformer.Mechanics
 
         void PerformMovement(Vector2 move, bool yMovement)
         {
-            if (shouldGravitate) return;
             var distance = move.magnitude;
 
             if (distance > minMoveDistance)
             {
                 //check if we hit anything in current direction of travel
-                var count = body.Cast(move, contactFilter, hitBuffer, distance + shellRadius);
+                var count = 0;
+                if (body != null)
+                    count = body.Cast(move, contactFilter, hitBuffer, distance + shellRadius);
+                    
                 for (var i = 0; i < count; i++)
                 {
                     var currentNormal = hitBuffer[i].normal;
@@ -179,7 +174,8 @@ namespace Platformer.Mechanics
                     distance = modifiedDistance < distance ? modifiedDistance : distance;
                 }
             }
-            body.position = body.position + move.normalized * distance;
+            if (body != null)
+                body.position = body.position + move.normalized * distance;
         }
 
     }
