@@ -45,14 +45,14 @@ namespace Platformer.Gameplay
                     player.Bounce(2);
                 }
             }
-            else
+            else 
             {
                 Schedule<PlayerDeath>();
             }
         }
 
         private void ExecuteFlyingEnemy() {
-            var willHurtFlyingEnemy = player.transform.position.y >= fEnemy.transform.position.y;
+            var willHurtFlyingEnemy = player.Bounds.center.y >= fEnemy.Bounds.max.y;
             
             if (willHurtFlyingEnemy) {
                 var enemyHealth = fEnemy.GetComponent<Health>();

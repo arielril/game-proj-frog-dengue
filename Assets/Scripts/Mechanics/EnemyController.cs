@@ -25,6 +25,7 @@ namespace Platformer.Mechanics
         internal AudioSource _audio;
         internal PlayerController thePlayer;
         SpriteRenderer spriteRenderer;
+        Rigidbody2D mBody;
 
         public Bounds Bounds => _collider.bounds;
 
@@ -35,6 +36,7 @@ namespace Platformer.Mechanics
             _collider = GetComponent<Collider2D>();
             _audio = GetComponent<AudioSource>();
             spriteRenderer = GetComponent<SpriteRenderer>();
+            mBody = GetComponent<Rigidbody2D>();
         }
 
         void OnCollisionEnter2D(Collision2D collision)
@@ -48,6 +50,14 @@ namespace Platformer.Mechanics
             }
         }
 
+        public void TakeDamage(Vector3 playerPosition)
+        {
+            playerPosition = playerPosition.normalized * moveSpeed * Time.deltaTime;
+            mBody.MovePosition(transform.position + playerPosition);
+       
+            Schedule<EnemyDeath>().enemy = this;
+        }
+
         protected override void Update()
         {
             if (path != null)
@@ -55,6 +65,8 @@ namespace Platformer.Mechanics
                 if (mover == null) mover = path.CreateMover(control.maxSpeed * 0.5f);
                 control.move.x = Mathf.Clamp(mover.Position.x - transform.position.x, -1, 1);
             }
+
+       
 
             playerInRange = Physics2D.OverlapCircle(transform.position, playerRange, playerLayer);
 
