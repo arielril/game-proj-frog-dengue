@@ -14,6 +14,8 @@ namespace Platformer.Mechanics
         public LayerMask playerLayer;
         public bool playerInRange;
         private PlayerController thePlayer;
+        public bool facingAway;
+        public bool followOnLookAway;
 
         public PatrolPath path;
         public AudioClip ouch;
@@ -49,7 +51,27 @@ namespace Platformer.Mechanics
         {
             playerInRange = Physics2D.OverlapCircle(transform.position, playerRange, playerLayer);
 
-            if (playerInRange) {
+            if (!followOnLookAway) {
+                if (playerInRange) {
+                    transform.position = Vector3.MoveTowards(
+                        transform.position,
+                        thePlayer.transform.position,
+                        moveSpeed * Time.deltaTime
+                    );
+                }
+                return;
+            }
+
+            if (
+                (thePlayer.transform.position.x < transform.position.x && thePlayer.transform.localScale.x < 0) || 
+                (thePlayer.transform.position.x > transform.position.x && thePlayer.transform.localScale.x > 0)
+            ) {
+                facingAway = true;
+            } else {
+                facingAway = false;
+            }
+
+            if (playerInRange && facingAway) {
                 transform.position = Vector3.MoveTowards(
                     transform.position,
                     thePlayer.transform.position,
